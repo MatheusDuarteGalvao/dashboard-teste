@@ -6,37 +6,31 @@
 <div class="container mx-auto p-6">
     <h1 class="text-3xl font-bold mb-6">Overview</h1>
 
-    {{-- Cards --}}
+    {{-- Cards (mantêm) --}}
     @php $d = $data ?? [] @endphp
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-        <div class="bg-white shadow rounded-lg p-5">
-            <h2 class="text-gray-500 text-sm">Total de Pedidos</h2>
-            <p class="text-2xl font-bold">{{ number_format($d['total_orders'] ?? 0, 0, ',', '.') }}</p>
-        </div>
-
-        <div class="bg-white shadow rounded-lg p-5">
-            <h2 class="text-gray-500 text-sm">Receita Total</h2>
-            <p class="text-2xl font-bold text-green-600">
-                R$ {{ number_format($d['total_revenue_brl'] ?? 0, 2, ',', '.') }}
-                @if(!is_null($d['total_revenue_usd']))
-                    <span class="text-sm text-gray-500 block mt-1">USD {{ number_format($d['total_revenue_usd'], 2, '.', ',') }}</span>
-                @endif
-            </p>
-            @if(!empty($d['avg_orders_per_customer']))
-                <div class="text-xs text-gray-500 mt-2">Média pedidos/cliente: {{ $d['avg_orders_per_customer'] }}</div>
-            @endif
-        </div>
-
-        <div class="bg-white shadow rounded-lg p-5">
-            <h2 class="text-gray-500 text-sm">Pedidos Entregues</h2>
-            <p class="text-2xl font-bold">{{ number_format($d['delivered_count'] ?? 0, 0, ',', '.') }}</p>
-            <div class="text-sm text-gray-500 mt-2">{{ $d['delivery_rate'] ?? 0 }}% entregues</div>
-        </div>
-
-        <div class="bg-white shadow rounded-lg p-5">
-            <h2 class="text-gray-500 text-sm">Clientes Únicos</h2>
-            <p class="text-2xl font-bold">{{ number_format($d['unique_customers'] ?? 0, 0, ',', '.') }}</p>
-        </div>
+        {{-- ...cards existing markup... --}}
+        @include('dashboard.components._card', [
+            'title' => 'Total de pedidos',
+            'value' => number_format($d['total_orders'] ?? 0, 0, ',', '.'),
+            'meta' => 'Pedidos registrados'
+        ])
+        @include('dashboard.components._card', [
+            'title' => 'Receita Total',
+            'value' => 'R$ ' . number_format($d['total_revenue_brl'] ?? 0, 2, ',', '.'),
+            'meta' => 'Receita em BRL',
+            'extra' => !is_null($d['total_revenue_usd']) ? 'USD ' . number_format($d['total_revenue_usd'], 2, '.', ',') : null
+        ])
+        @include('dashboard.components._card', [
+            'title' => 'Pedidos Entregues',
+            'value' => number_format($d['delivered_count'] ?? 0, 0, ',', '.'),
+            'meta' => $d['delivery_rate'] ?? 0 . '% entregues'
+        ])
+        @include('dashboard.components._card', [
+            'title' => 'Clientes Únicos',
+            'value' => number_format($d['unique_customers'] ?? 0, 0, ',', '.'),
+            'meta' => 'Clientes distintos que fizeram pedidos'
+        ])
     </div>
 
     {{-- Resumo financeiro e produto mais vendido --}}
@@ -80,9 +74,32 @@
         @endif
     </div>
 
-    {{-- Tabela de Pedidos - mesmo template do index --}}
-    <div class="bg-white shadow rounded-lg p-6">
-        <h2 class="text-xl font-semibold mb-4">Pedidos Recentes</h2>
+    {{-- Recent orders: mobile cards + desktop table (mesma estrutura do orders_table) --}}
+    @php $ordersList = $orders ?? $recentOrders ?? [] @endphp
+
+    <div class="sm:hidden space-y-3 mb-8">
+        @forelse($ordersList as $order)
+            <div class="bg-white shadow rounded-lg p-4">
+                <div class="flex items-start justify-between">
+                    <div>
+                        <div class="text-sm text-gray-500">Pedido</div>
+                        <div class="font-mono text-sm text-gray-800">{{ data_get($order, 'id') ?? '—' }}</div>
+                        <div class="mt-2 text-sm text-gray-700">{{ data_get($order, 'customer.first_name') }} {{ data_get($order, 'customer.last_name') }}</div>
+                        <div class="text-xs text-gray-500">{{ data_get($order, 'contact_email') ?? data_get($order, 'customer.email') }}</div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-sm text-gray-500">Valor</div>
+                        <div class="text-lg font-semibold">R$ {{ number_format((float) str_replace(',', '', data_get($order, 'local_currency_amount', 0)), 2, ',', '.') }}</div>
+                        <div class="mt-2 text-xs text-gray-500">{{ data_get($order, 'created_at') ? date('d/m/Y H:i', strtotime(data_get($order, 'created_at'))) : '—' }}</div>
+                    </div>
+                </div>
+            </div>
+        @empty
+            <div class="text-sm text-gray-500">Nenhum pedido recente.</div>
+        @endforelse
+    </div>
+
+    <div class="hidden sm:block bg-white shadow rounded-lg overflow-x-auto mb-8">
         <table class="w-full text-left border-collapse">
             <thead>
                 <tr class="bg-gray-100 text-gray-700 text-sm">
@@ -96,8 +113,7 @@
                 </tr>
             </thead>
             <tbody>
-                @php $ordersList = $orders ?? [] @endphp
-                @foreach ($ordersList as $order)
+                @forelse($ordersList as $order)
                 <tr class="border-b text-sm">
                     <td class="p-3 font-mono">{{ data_get($order, 'id') }}</td>
                     <td class="p-3">{{ data_get($order, 'customer.first_name') }} {{ data_get($order, 'customer.last_name') }}</td>
@@ -107,9 +123,15 @@
                     <td class="p-3">R$ {{ number_format((float) str_replace(',', '', data_get($order, 'local_currency_amount', 0)), 2, ',', '.') }}</td>
                     <td class="p-3">{{ data_get($order, 'created_at') ? date('d/m/Y H:i', strtotime(data_get($order, 'created_at'))) : '—' }}</td>
                 </tr>
-                @endforeach
+                @empty
+                <tr>
+                    <td class="p-3 text-sm text-gray-500" colspan="7">Nenhum pedido recente.</td>
+                </tr>
+                @endforelse
             </tbody>
         </table>
     </div>
+
+    {{-- restante da página --}}
 </div>
 @endsection
