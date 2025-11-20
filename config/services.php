@@ -35,4 +35,7 @@ return [
         ],
     ],
 
+    'crm' => [
+        'test_api' => env('CRM_TEST_API'),
+    ],
 ];
