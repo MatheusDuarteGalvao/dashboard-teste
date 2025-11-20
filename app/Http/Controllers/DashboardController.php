@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Repositories\OrderRepository;
 use App\Repositories\OrderItemRepository;
+use App\Repositories\OrderRepository;
 use App\Repositories\RefundRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -11,7 +11,9 @@ use Illuminate\Support\Facades\Cache;
 class DashboardController extends Controller
 {
     protected $orderRepo;
+
     protected $orderItemRepo;
+
     protected $refundRepo;
 
     public function __construct(OrderRepository $orderRepo, OrderItemRepository $orderItemRepo, RefundRepository $refundRepo)
@@ -38,10 +40,14 @@ class DashboardController extends Controller
             return is_array($items) ? $items : (method_exists($items, 'all') ? $items->all() : []);
         });
 
+        $list = $this->orderItemRepo->getTopProducts(6);
+        $topProducts = is_object($list) && method_exists($list, 'toArray') ? $list->toArray() : (array) $list;
+
         return view('dashboard.overview', [
             'data' => $data,
             'orders' => $recent,
             'recentOrders' => $recent,
+            'topProducts' => $topProducts,
         ]);
     }
 
@@ -117,18 +123,18 @@ class DashboardController extends Controller
         $topProduct = $topItem ? (method_exists($topItem, 'toArray') ? $topItem->toArray() : (array) $topItem) : null;
 
         return [
-            'total_orders'          => (int) $totalOrders,
-            'total_revenue_brl'     => (float) $totalRevenueBRL,
-            'total_revenue_usd'     => $totalRevenueUSD !== null ? (float)$totalRevenueUSD : null,
-            'delivered_count'       => (int) $delivered,
-            'delivery_rate'         => (float) $deliveryRate,
-            'unique_customers'      => (int) $uniqueCustomers,
-            'avg_orders_per_customer'=> (float) $avgOrdersPerCustomer,
-            'gross'                 => (float) $gross,
-            'refunds'               => (float) $refunds,
-            'net'                   => (float) $net,
-            'refund_rate'           => (float) $refundRate,
-            'top_product'           => $topProduct,
+            'total_orders' => (int) $totalOrders,
+            'total_revenue_brl' => (float) $totalRevenueBRL,
+            'total_revenue_usd' => $totalRevenueUSD !== null ? (float) $totalRevenueUSD : null,
+            'delivered_count' => (int) $delivered,
+            'delivery_rate' => (float) $deliveryRate,
+            'unique_customers' => (int) $uniqueCustomers,
+            'avg_orders_per_customer' => (float) $avgOrdersPerCustomer,
+            'gross' => (float) $gross,
+            'refunds' => (float) $refunds,
+            'net' => (float) $net,
+            'refund_rate' => (float) $refundRate,
+            'top_product' => $topProduct,
         ];
     }
 }
