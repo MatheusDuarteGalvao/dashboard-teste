@@ -1,0 +1,134 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Repositories\OrderRepository;
+use App\Repositories\OrderItemRepository;
+use App\Repositories\RefundRepository;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+
+class DashboardController extends Controller
+{
+    protected $orderRepo;
+    protected $orderItemRepo;
+    protected $refundRepo;
+
+    public function __construct(OrderRepository $orderRepo, OrderItemRepository $orderItemRepo, RefundRepository $refundRepo)
+    {
+        $this->orderRepo = $orderRepo;
+        $this->orderItemRepo = $orderItemRepo;
+        $this->refundRepo = $refundRepo;
+    }
+
+    /**
+     * Home page — mostra overview + pedidos recentes
+     */
+    public function index()
+    {
+        $data = Cache::remember('dashboard:overview', 30, function () {
+            return $this->overviewData();
+        });
+
+        $recent = Cache::remember('dashboard:recent_orders', 30, function () {
+            $items = $this->orderRepo->getRecentOrders(10);
+            if (is_object($items) && method_exists($items, 'toArray')) {
+                return $items->toArray();
+            }
+            return is_array($items) ? $items : (method_exists($items, 'all') ? $items->all() : []);
+        });
+
+        return view('dashboard.overview', [
+            'data' => $data,
+            'orders' => $recent,
+            'recentOrders' => $recent,
+        ]);
+    }
+
+    /**
+     * Web: tabela de pedidos (carrega todos os pedidos)
+     */
+    public function orders(Request $req)
+    {
+        $orders = $this->orderRepo->getOrders(null);
+
+        if (is_object($orders) && method_exists($orders, 'toArray')) {
+            $ordersArr = $orders->toArray();
+            // collection->toArray may return indexed array of models
+            if (isset($ordersArr['data']) && is_array($ordersArr['data'])) {
+                $ordersArr = $ordersArr['data'];
+            }
+        } elseif (is_array($orders)) {
+            $ordersArr = $orders;
+        } elseif (method_exists($orders, 'all')) {
+            $ordersArr = $orders->all();
+        } else {
+            $ordersArr = [];
+        }
+
+        return view('dashboard.orders_table', [
+            'orders' => $ordersArr,
+        ]);
+    }
+
+    /**
+     * Web: top products (view)
+     */
+    public function topProducts(Request $req)
+    {
+        $limit = (int) $req->get('limit', 5);
+        $list = $this->orderItemRepo->getTopProducts($limit);
+        $products = is_object($list) && method_exists($list, 'toArray') ? $list->toArray() : (array) $list;
+
+        return view('dashboard.top_products', ['products' => $products]);
+    }
+
+    /**
+     * Helper: overview data (agora inclui BRL/USD, média por cliente, refund rate, etc.)
+     */
+    protected function overviewData(): array
+    {
+        $totalOrders = $this->orderRepo->count();
+
+        // receita BRL (local_currency_amount)
+        $totalRevenueBRL = (float) $this->orderRepo->sumRevenue();
+
+        // tenta soma USD via repository, pode retornar null
+        $totalRevenueUSD = null;
+        if (method_exists($this->orderRepo, 'sumRevenueUsd')) {
+            $totalRevenueUSD = $this->orderRepo->sumRevenueUsd();
+        }
+
+        $delivered = $this->orderRepo->countDelivered();
+        $deliveryRate = $totalOrders ? round(($delivered / $totalOrders) * 100, 2) : 0;
+
+        $uniqueCustomers = $this->orderRepo->countUniqueCustomers();
+        $avgOrdersPerCustomer = $uniqueCustomers ? round($totalOrders / $uniqueCustomers, 2) : 0;
+
+        $gross = $totalRevenueBRL;
+        $refunds = $this->refundRepo->sumTotalAmount();
+        $net = $gross - $refunds;
+
+        $refundedOrders = $this->refundRepo->countRefundedOrders();
+        $refundRate = $totalOrders ? round(($refundedOrders / $totalOrders) * 100, 2) : 0;
+
+        $top = $this->orderItemRepo->getTopProducts(1);
+        $topItem = (is_object($top) && method_exists($top, 'first')) ? $top->first() : (is_array($top) && count($top) ? (object) $top[0] : null);
+        $topProduct = $topItem ? (method_exists($topItem, 'toArray') ? $topItem->toArray() : (array) $topItem) : null;
+
+        return [
+            'total_orders'          => (int) $totalOrders,
+            'total_revenue_brl'     => (float) $totalRevenueBRL,
+            'total_revenue_usd'     => $totalRevenueUSD !== null ? (float)$totalRevenueUSD : null,
+            'delivered_count'       => (int) $delivered,
+            'delivery_rate'         => (float) $deliveryRate,
+            'unique_customers'      => (int) $uniqueCustomers,
+            'avg_orders_per_customer'=> (float) $avgOrdersPerCustomer,
+            'gross'                 => (float) $gross,
+            'refunds'               => (float) $refunds,
+            'net'                   => (float) $net,
+            'refund_rate'           => (float) $refundRate,
+            'top_product'           => $topProduct,
+        ];
+    }
+}
