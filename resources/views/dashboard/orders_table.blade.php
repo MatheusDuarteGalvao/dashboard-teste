@@ -16,7 +16,7 @@
     {{-- Mobile: lista de cards --}}
     <div class="sm:hidden space-y-3">
         @forelse($ordersList as $order)
-            <div class="bg-white shadow rounded-lg p-4">
+            <div class="bg-white shadow rounded-lg p-4 order-card">
                 <div class="flex items-start justify-between">
                     <div>
                         <div class="text-sm text-gray-500">Pedido</div>
@@ -66,7 +66,7 @@
             </thead>
             <tbody>
                 @forelse($ordersList as $order)
-                <tr class="border-b text-sm">
+                <tr class="border-b text-sm order-row">
                     <td class="p-3 font-mono">{{ data_get($order, 'id') }}</td>
                     <td class="p-3">{{ data_get($order, 'customer.first_name') }} {{ data_get($order, 'customer.last_name') }}</td>
                     <td class="p-3">{{ data_get($order, 'contact_email') ?? data_get($order, 'customer.email') }}</td>
@@ -84,4 +84,26 @@
         </table>
     </div>
 </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const input = document.getElementById("q");
+
+    input.addEventListener("keyup", function () {
+        const query = this.value.toLowerCase();
+
+        // --- Filtra TABELA (desktop) ---
+        document.querySelectorAll(".order-row").forEach((row) => {
+            const text = row.innerText.toLowerCase();
+            row.style.display = text.includes(query) ? "" : "none";
+        });
+
+        // --- Filtra CARDS (mobile) ---
+        document.querySelectorAll(".order-card").forEach((card) => {
+            const text = card.innerText.toLowerCase();
+            card.style.display = text.includes(query) ? "" : "none";
+        });
+    });
+});
+</script>
 @endsection
