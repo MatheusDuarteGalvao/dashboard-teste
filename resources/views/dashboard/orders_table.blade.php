@@ -9,7 +9,6 @@
     {{-- Busca / ações --}}
     <div class="flex items-center justify-between mb-4">
         <input id="q" type="search" placeholder="Buscar pedido, cliente, cidade..." class="px-3 py-2 rounded border w-full sm:w-1/3 focus:outline-none" />
-        <a href="{{ url('/api/dashboard/orders') }}" class="ml-3 text-sm text-indigo-600 hidden sm:inline">Export JSON</a>
     </div>
 
     @php $ordersList = $orders['data'] ?? $orders ?? [] @endphp
@@ -43,7 +42,6 @@
                         <span class="mr-2">Pagamento: {{ data_get($order, 'financial_status') ?? '—' }}</span>
                         <span>Entrega: {{ data_get($order, 'fulfillment_status') ?? '—' }}</span>
                     </div>
-                    <a href="{{ url('/dashboard/orders/'.(data_get($order,'id') ?? '')) }}" class="text-indigo-600 text-sm">Ver</a>
                 </div>
             </div>
         @empty
@@ -63,7 +61,7 @@
                     <th class="p-3">Entrega</th>
                     <th class="p-3">Valor</th>
                     <th class="p-3">Data</th>
-                    <th class="p-3">Ações</th>
+
                 </tr>
             </thead>
             <tbody>
@@ -76,7 +74,6 @@
                     <td class="p-3">{{ data_get($order, 'fulfillment_status') }}</td>
                     <td class="p-3">R$ {{ number_format((float) str_replace(',', '', data_get($order, 'local_currency_amount', 0)), 2, ',', '.') }}</td>
                     <td class="p-3">{{ data_get($order, 'created_at') ? date('d/m/Y H:i', strtotime(data_get($order, 'created_at'))) : '—' }}</td>
-                    <td class="p-3"><a href="{{ url('/dashboard/orders/'.(data_get($order,'id') ?? '')) }}" class="text-indigo-600">Ver</a></td>
                 </tr>
                 @empty
                 <tr>
