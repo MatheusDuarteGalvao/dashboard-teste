@@ -51,12 +51,16 @@ class DashboardController extends Controller
         $listCities = $this->customerRepo->getTopCities(5);
         $topCities = is_object($listCities) && method_exists($listCities, 'toArray') ? $listCities->toArray() : (array) $listCities;
 
+        $listSalesOvertime = $this->orderItemRepo->getSalesTrend(30);
+        $salesOvertime = is_object($listSalesOvertime) && method_exists($listSalesOvertime, 'toArray') ? $listSalesOvertime->toArray() : (array) $listSalesOvertime;
+
         return view('dashboard.overview', [
             'data' => $data,
             'orders' => $recent,
             'recentOrders' => $recent,
             'topProducts' => $topProducts,
             'topCities' => $topCities,
+            'salesOvertime' => $salesOvertime,
             'salesGeografic' => $this->customerRepo->getSalesGeograficDistribution(),
         ]);
     }

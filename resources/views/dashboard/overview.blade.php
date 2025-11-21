@@ -35,7 +35,6 @@
             ])
         </div>
 
-        {{-- Resumo financeiro e produto mais vendido --}}
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
             <div class="lg:col-span-2 bg-white shadow rounded-lg p-5">
                 <h3 class="text-lg font-medium">Resumo Financeiro</h3>
@@ -63,7 +62,11 @@
             </div>
         </div>
 
-        {{-- Produto mais vendido --}}
+        <div class="bg-white p-5 shadow rounded mt-8 mb-8">
+            <h2 class="text-xl font-bold mb-4">Vendas ao longo do tempo</h2>
+            <canvas id="salesOvertime"></canvas>
+        </div>
+
         <div class="bg-white shadow rounded-lg p-5 mb-8">
             <h3 class="text-lg font-medium">Produto Mais Vendido</h3>
             @if (!empty($d['top_product']))
@@ -156,54 +159,63 @@
         </div>
     </div>
 
-    <h2 class="text-2xl font-bold mb-4">Top 5 Produtos</h2>
-
-    <div class="bg-white p-6 rounded shadow mb-10">
+    <div class="bg-white p-5 shadow rounded mt-8 mb-8">
+        <h2 class="text-2xl font-bold mb-4">Top 5 Produtos</h2>
         <canvas id="chartTopProducts"></canvas>
     </div>
 
-    @push('scripts')
-    <script>
-        const ctxTopProducts = document.getElementById('chartTopProducts');
-
-        new Chart(ctxTopProducts, {
-            type: 'bar',
-            data: {
-                labels: @json(collect($topProducts)->pluck('name')),
-                datasets: [{
-                    label: 'Vendas',
-                    data: @json(collect($topProducts)->pluck('qty')),
-                    borderWidth: 1
-                }]
-            }
-        });
-    </script>
-    @endpush
-
-    @section('title', 'Top 10 Cidades')
-
-    <h1 class="text-3xl font-bold mb-6">Top 10 Cidades</h1>
-
-    <div class="bg-white p-6 shadow rounded">
+    <div class="bg-white p-5 shadow rounded mt-8 mb-8">
+        <h1 class="text-3xl font-bold mb-6">Top 10 Cidades</h1>
         <canvas id="chartTopCities"></canvas>
     </div>
 
     @push('scripts')
-    <script>
-        const ctxTopCities = document.getElementById('chartTopCities');
+        <script>
+            const ctxTopCities = document.getElementById('chartTopCities');
 
-        new Chart(ctxTopCities, {
-            type: 'bar',
-            data: {
-                labels: @json(collect($topCities)->pluck('city')),
-                datasets: [{
-                    label: 'Pedidos',
-                    data: @json(collect($topCities)->pluck('total')),
-                    borderWidth: 1
-                }]
-            }
-        });
-    </script>
+            new Chart(ctxTopCities, {
+                type: 'bar',
+                data: {
+                    labels: @json(collect($topCities)->pluck('city')),
+                    datasets: [{
+                        label: 'Pedidos',
+                        data: @json(collect($topCities)->pluck('total')),
+                        borderWidth: 1
+                    }]
+                }
+            });
+
+            const ctxTopProducts = document.getElementById('chartTopProducts');
+
+            new Chart(ctxTopProducts, {
+                type: 'bar',
+                options: {
+                    indexAxis: 'y',
+                },
+                data: {
+                    labels: @json(collect($topProducts)->pluck('name')),
+                    datasets: [{
+                        label: 'Quantidade Vendida',
+                        data: @json(collect($topProducts)->pluck('qty')),
+                        borderWidth: 1
+                    }]
+                }
+            });
+
+            const ctxSalesOvertime = document.getElementById('salesOvertime');
+
+            new Chart(ctxSalesOvertime, {
+                type: 'line',
+                data: {
+                    labels: @json(collect($salesOvertime)->pluck('date')),
+                    datasets: [{
+                        label: 'Receita',
+                        data: @json(collect($salesOvertime)->pluck('total')),
+                        borderWidth: 1
+                    }]
+                }
+            });
+        </script>
     @endpush
 
     {{-- restante da página --}}

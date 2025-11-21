@@ -20,10 +20,10 @@ class OrderItemRepository
     public function getSalesTrend($days = 30)
     {
         $start = now()->subDays($days - 1)->startOfDay();
-        return Order::select(DB::raw('DATE(placed_at) as day'), DB::raw('SUM(local_currency_amount) as total'))
+        return Order::select(DB::raw('DATE(placed_at) as date'), DB::raw('SUM(local_currency_amount) as total'))
             ->where('placed_at', '>=', $start)
-            ->groupBy('day')
-            ->orderBy('day')
+            ->groupBy('date')
+            ->orderBy('date')
             ->get();
     }
 }

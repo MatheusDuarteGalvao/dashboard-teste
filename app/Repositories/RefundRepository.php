@@ -16,4 +16,22 @@ class RefundRepository
     {
         return Order::whereHas('refunds')->count();
     }
+
+    public function getRefundReasons()
+    {
+        return Refund::select('reason', \Illuminate\Support\Facades\DB::raw('COUNT(*) as total'))
+            ->groupBy('reason')
+            ->orderByDesc('total')
+            ->get();
+    }
+
+    public function getDeliveredVsRefunded()
+    {
+        return Order::select('fulfillment_status', \Illuminate\Support\Facades\DB::raw('COUNT(*) as total'))
+            ->where('fulfillment_status', 'Fully Fulfilled')
+            ->whereHas('refunds')
+            ->groupBy('fulfillment_status')
+            ->orderByDesc('total')
+            ->get();
+    }
 }

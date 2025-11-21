@@ -171,8 +171,8 @@ class OrderImporter
         foreach ($refunds as $r) {
             Refund::create([
                 'order_id' => $orderModel->id,
-                'total_amount' => $this->toDecimal($r['total_amount'] ?? $r['amount'] ?? 0),
-                'reason' => $r['reason'] ?? null,
+                'total_amount' => $this->toDecimal($r['total_amount'] ?? 0),
+                'reason' => $r['note'] ?? null,
             ]);
         }
     }
