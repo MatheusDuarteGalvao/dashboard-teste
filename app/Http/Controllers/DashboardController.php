@@ -45,17 +45,35 @@ class DashboardController extends Controller
             return is_array($items) ? $items : (method_exists($items, 'all') ? $items->all() : []);
         });
 
-        $list = $this->orderItemRepo->getTopProducts(6);
-        $topProducts = is_object($list) && method_exists($list, 'toArray') ? $list->toArray() : (array) $list;
+        $topProducts = Cache::remember('dashboard:top_products', 30, function () {
+            $listProducts = $this->orderItemRepo->getTopProducts(5);
+            return is_object($listProducts) && method_exists($listProducts, 'toArray') ? $listProducts->toArray() : (array) $listProducts;
+        });
 
-        $listCities = $this->customerRepo->getTopCities(10);
-        $topCities = is_object($listCities) && method_exists($listCities, 'toArray') ? $listCities->toArray() : (array) $listCities;
+        $topCities = Cache::remember('dashboard:top_cities', 30, function () {
+            $listCities = $this->customerRepo->getTopCities(10);
+            return is_object($listCities) && method_exists($listCities, 'toArray') ? $listCities->toArray() : (array) $listCities;
+        });
 
-        $listSalesOvertime = $this->orderItemRepo->getSalesTrend(30);
-        $salesOvertime = is_object($listSalesOvertime) && method_exists($listSalesOvertime, 'toArray') ? $listSalesOvertime->toArray() : (array) $listSalesOvertime;
+        $salesOvertime = Cache::remember('dashboard:sales_overtime', 30, function () {
+            $listSalesOvertime = $this->orderItemRepo->getSalesTrend(30);
+            return is_object($listSalesOvertime) && method_exists($listSalesOvertime, 'toArray') ? $listSalesOvertime->toArray() : (array) $listSalesOvertime;
+        });
 
-        $listSalesGeografic = $this->customerRepo->getSalesGeograficDistribution();
-        $salesGeografic = is_object($listSalesGeografic) && method_exists($listSalesGeografic, 'toArray') ? $listSalesGeografic->toArray() : (array) $listSalesGeografic;
+        $salesGeografic = Cache::remember('dashboard:sales_geografic', 30, function () {
+            $listSalesGeografic = $this->customerRepo->getSalesGeograficDistribution();
+            return is_object($listSalesGeografic) && method_exists($listSalesGeografic, 'toArray') ? $listSalesGeografic->toArray() : (array) $listSalesGeografic;
+        });
+
+        $salesOvertime = Cache::remember('dashboard:sales_overtime', 30, function () {
+            $listSalesOvertime = $this->orderItemRepo->getSalesTrend(30);
+            return is_object($listSalesOvertime) && method_exists($listSalesOvertime, 'toArray') ? $listSalesOvertime->toArray() : (array) $listSalesOvertime;
+        });
+
+        $deliveredvsRefunded = Cache::remember('dashboard:delivered_vs_refunded', 30, function () {
+            $listDeliveredvsRefunded = $this->orderRepo->getDeliveredVsRefunded();
+            return is_object($listDeliveredvsRefunded) && method_exists($listDeliveredvsRefunded, 'toArray') ? $listDeliveredvsRefunded->toArray() : (array) $listDeliveredvsRefunded;
+        });
 
         return view('dashboard.overview', [
             'data' => $data,
@@ -65,6 +83,7 @@ class DashboardController extends Controller
             'topCities' => $topCities,
             'salesOvertime' => $salesOvertime,
             'salesGeografic' => $salesGeografic,
+            'deliveredvsRefunded' => $deliveredvsRefunded,
         ]);
     }
 
@@ -104,19 +123,6 @@ class DashboardController extends Controller
         return view('dashboard.orders', [
             'orders' => $paginator,
         ]);
-    }
-
-    /**
-     * Web: top products (view)
-     */
-    public function products(Request $req)
-    {
-        $limit = (int) $req->get('limit', 5);
-        $list = $this->orderItemRepo->getTopProducts($limit);
-        $products = is_object($list) && method_exists($list, 'toArray') ? $list->toArray() : (array) $list;
-
-        return view('dashboard.products', [
-            'products' => $products,]);
     }
 
     /**

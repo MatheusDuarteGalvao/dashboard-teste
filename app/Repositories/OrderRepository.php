@@ -84,6 +84,15 @@ class OrderRepository
         return Order::with('customer')->orderBy('placed_at', 'desc')->get();
     }
 
+    public function getDeliveredVsRefunded()
+    {
+        return Order::selectRaw('
+                SUM(CASE WHEN fulfillment_status = "Fully Fulfilled" THEN 1 ELSE 0 END) as delivered,
+                SUM(CASE WHEN id IN (SELECT DISTINCT order_id FROM refunds) THEN 1 ELSE 0 END) as refunded
+            ')
+            ->first();
+    }
+
     public function getRevenueByVariant()
     {
         return Order::selectRaw('SUM(local_currency_amount) as total_revenue, variant_id')
