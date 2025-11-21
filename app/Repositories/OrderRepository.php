@@ -84,6 +84,11 @@ class OrderRepository
         return Order::with('customer')->orderBy('placed_at', 'desc')->get();
     }
 
+    public function findById($id)
+    {
+        return Order::with(['customer', 'items', 'refunds'])->find($id);
+    }
+
     public function getDeliveredVsRefunded()
     {
         return Order::selectRaw('
@@ -93,12 +98,27 @@ class OrderRepository
             ->first();
     }
 
-    public function getRevenueByVariant()
+    public function getAverageOrderValue()
     {
-        return Order::selectRaw('SUM(local_currency_amount) as total_revenue, variant_id')
-            ->join('order_items', 'orders.id', '=', 'order_items.order_id')
-            ->groupBy('variant_id')
-            ->orderBy('total_revenue', 'desc')
-            ->get();
+        $totalRevenue = $this->sumRevenue();
+        $totalOrders = $this->count();
+
+        if ($totalOrders === 0) {
+            return 0.0;
+        }
+
+        return $totalRevenue / $totalOrders;
+    }
+
+    public function getDeliveredOrders()
+    {
+        return Order::with('customer')->where('fulfillment_status', 'Fully Fulfilled')->get();
+    }
+
+    public function getRefundedOrders()
+    {
+        return Order::with('customer')->whereIn('id', function ($query) {
+            $query->select('order_id')->from('refunds');
+        })->get();
     }
 }

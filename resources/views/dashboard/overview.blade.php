@@ -131,50 +131,6 @@
                 <div class="text-sm text-gray-500">Nenhum pedido recente.</div>
             @endforelse
         </div>
-
-        <div class="hidden sm:block bg-white rounded-lg overflow-x-auto">
-            <div class="grid grid-cols-1 lg:grid-cols-1 gap-6 mb-8">
-                <div class="lg:col-span-2 bg-white rounded-lg p-5">
-                    <h3 class="text-lg font-medium mb-8">Pedidos Recentes</h3>
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="bg-gray-100 text-gray-700 text-sm">
-                                <th class="p-3">ID</th>
-                                <th class="p-3">Cliente</th>
-                                <th class="p-3">Email</th>
-                                <th class="p-3">Status</th>
-                                <th class="p-3">Entrega</th>
-                                <th class="p-3">Valor</th>
-                                <th class="p-3">Data</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($ordersList as $order)
-                                <tr class="border-b text-sm">
-                                    <td class="p-3 font-mono">{{ data_get($order, 'id') }}</td>
-                                    <td class="p-3">{{ data_get($order, 'customer.first_name') }}
-                                        {{ data_get($order, 'customer.last_name') }}</td>
-                                    <td class="p-3">
-                                        {{ data_get($order, 'contact_email') ?? data_get($order, 'customer.email') }}</td>
-                                    <td class="p-3">{{ data_get($order, 'financial_status') }}</td>
-                                    <td class="p-3">{{ data_get($order, 'fulfillment_status') }}</td>
-                                    <td class="p-3">R$
-                                        {{ number_format((float) str_replace(',', '', data_get($order, 'local_currency_amount', 0)), 2, ',', '.') }}
-                                    </td>
-                                    <td class="p-3">
-                                        {{ data_get($order, 'placed_at') ? date('d/m/Y H:i', strtotime(data_get($order, 'placed_at'))) : '—' }}
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td class="p-3 text-sm text-gray-500" colspan="7">Nenhum pedido recente.</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
     </div>
 
     @push('scripts')

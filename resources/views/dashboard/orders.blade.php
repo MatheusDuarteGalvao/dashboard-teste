@@ -9,6 +9,11 @@
     {{-- Busca / ações --}}
     <div class="flex items-center justify-between mb-4">
         <input id="q" type="search" placeholder="Buscar pedido, cliente, cidade..." class="px-3 py-2 rounded border w-full sm:w-1/3 focus:outline-none" />
+        <div class="space-x-2">
+            <a href="{{ route('dashboard.delivered_orders') }}" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Ver Pedidos Entregues</a>
+            <a href="{{ route('dashboard.refunded_orders') }}" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">Ver Pedidos Reembolsados</a>
+            <a href="{{ route('dashboard.orders') }}" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Ver Todos os Pedidos</a>
+        </div>
     </div>
 
     @php
@@ -66,6 +71,7 @@
                     <th class="p-3">Entrega</th>
                     <th class="p-3">Valor</th>
                     <th class="p-3">Data</th>
+                    <th class="p-3">Ações</th>
                 </tr>
             </thead>
             <tbody>
@@ -81,6 +87,9 @@
                     </td>
                     <td class="p-3">
                         {{ data_get($order, 'placed_at') ? date('d/m/Y H:i', strtotime(data_get($order, 'placed_at'))) : '—' }}
+                    </td>
+                    <td class="p-3">
+                        <a href="{{ route('dashboard.order_details', ['order' => data_get($order, 'id')]) }}" class="text-blue-600 hover:underline">Ver detalhes</a>
                     </td>
                 </tr>
                 @empty

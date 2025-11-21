@@ -70,6 +70,11 @@ class DashboardController extends Controller
             return is_object($listSalesOvertime) && method_exists($listSalesOvertime, 'toArray') ? $listSalesOvertime->toArray() : (array) $listSalesOvertime;
         });
 
+        $deliveredOrders = Cache::remember('dashboard:delivered_orders', 30, function () {
+            $countDelivered = $this->orderRepo->countDelivered();
+            return (int) $countDelivered;
+        });
+
         $deliveredvsRefunded = Cache::remember('dashboard:delivered_vs_refunded', 30, function () {
             $listDeliveredvsRefunded = $this->orderRepo->getDeliveredVsRefunded();
             return is_object($listDeliveredvsRefunded) && method_exists($listDeliveredvsRefunded, 'toArray') ? $listDeliveredvsRefunded->toArray() : (array) $listDeliveredvsRefunded;
@@ -83,7 +88,90 @@ class DashboardController extends Controller
             'topCities' => $topCities,
             'salesOvertime' => $salesOvertime,
             'salesGeografic' => $salesGeografic,
+            'deliveredOrders' => $deliveredOrders,
             'deliveredvsRefunded' => $deliveredvsRefunded,
+        ]);
+    }
+
+    function deliveredOrders(Request $req)
+    {
+        $orders = $this->orderRepo->getDeliveredOrders();
+
+        if (is_object($orders) && method_exists($orders, 'toArray')) {
+            $ordersArr = $orders->toArray();
+            // collection->toArray may return indexed array of models
+            if (isset($ordersArr['data']) && is_array($ordersArr['data'])) {
+                $ordersArr = $ordersArr['data'];
+            }
+        } elseif (is_array($orders)) {
+            $ordersArr = $orders;
+        } elseif (method_exists($orders, 'all')) {
+            $ordersArr = $orders->all();
+        } else {
+            $ordersArr = [];
+        }
+
+        $page = LengthAwarePaginator::resolveCurrentPage();
+        $perPage = 20;
+        $items = collect($ordersArr);
+
+        $paginator = new LengthAwarePaginator(
+            $items->slice(($page - 1) * $perPage, $perPage)->values(),
+            $items->count(),
+            $perPage,
+            $page,
+            ['path' => $req->url(), 'query' => $req->query()]
+        );
+
+        return view('dashboard.orders', [
+            'orders' => $paginator,
+        ]);
+    }
+
+    public function refundedOrders(Request $req)
+    {
+        $orders = $this->orderRepo->getRefundedOrders();
+
+        if (is_object($orders) && method_exists($orders, 'toArray')) {
+            $ordersArr = $orders->toArray();
+            if (isset($ordersArr['data']) && is_array($ordersArr['data'])) {
+                $ordersArr = $ordersArr['data'];
+            }
+        } elseif (is_array($orders)) {
+            $ordersArr = $orders;
+        } elseif (method_exists($orders, 'all')) {
+            $ordersArr = $orders->all();
+        } else {
+            $ordersArr = [];
+        }
+
+        $page = LengthAwarePaginator::resolveCurrentPage();
+        $perPage = 20;
+        $items = collect($ordersArr);
+
+        $paginator = new LengthAwarePaginator(
+            $items->slice(($page - 1) * $perPage, $perPage)->values(),
+            $items->count(),
+            $perPage,
+            $page,
+            ['path' => $req->url(), 'query' => $req->query()]
+        );
+
+        return view('dashboard.orders', [
+            'orders' => $paginator,
+        ]);
+    }
+
+    public function orderDetails($orderId)
+    {
+        $order = $this->orderRepo->findById($orderId);
+
+        if (!$order) {
+            return redirect()->route('dashboard.orders')->with('error', 'Pedido não encontrado.');
+        }
+
+        return view('dashboard.order_details', [
+            'order' => $order,
         ]);
     }
 
