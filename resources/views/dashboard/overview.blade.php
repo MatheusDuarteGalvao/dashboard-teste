@@ -101,36 +101,6 @@
                 <div class="text-sm text-gray-500 mt-2">Sem dados</div>
             @endif
         </div>
-
-        @php $ordersList = $orders ?? $recentOrders ?? [] @endphp
-
-        <div class="sm:hidden space-y-3 mb-8">
-            @forelse($ordersList as $order)
-                <div class="bg-white shadow rounded-lg p-4">
-                    <div class="flex items-start justify-between">
-                        <div>
-                            <div class="text-sm text-gray-500">Pedido</div>
-                            <div class="font-mono text-sm text-gray-800">{{ data_get($order, 'id') ?? '—' }}</div>
-                            <div class="mt-2 text-sm text-gray-700">{{ data_get($order, 'customer.first_name') }}
-                                {{ data_get($order, 'customer.last_name') }}</div>
-                            <div class="text-xs text-gray-500">
-                                {{ data_get($order, 'contact_email') ?? data_get($order, 'customer.email') }}</div>
-                        </div>
-                        <div class="text-right">
-                            <div class="text-sm text-gray-500">Valor</div>
-                            <div class="text-lg font-semibold">R$
-                                {{ number_format((float) str_replace(',', '', data_get($order, 'local_currency_amount', 0)), 2, ',', '.') }}
-                            </div>
-                            <div class="mt-2 text-xs text-gray-500">
-                                {{ data_get($order, 'placed_at') ? date('d/m/Y H:i', strtotime(data_get($order, 'placed_at'))) : '—' }}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            @empty
-                <div class="text-sm text-gray-500">Nenhum pedido recente.</div>
-            @endforelse
-        </div>
     </div>
 
     @push('scripts')

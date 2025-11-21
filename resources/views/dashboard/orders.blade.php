@@ -9,7 +9,7 @@
     {{-- Busca / ações --}}
     <div class="flex items-center justify-between mb-4">
         <input id="q" type="search" placeholder="Buscar pedido, cliente, cidade..." class="px-3 py-2 rounded border w-full sm:w-1/3 focus:outline-none" />
-        <div class="space-x-2">
+        <div class="space-x-2 hidden sm:flex">
             <a href="{{ route('dashboard.delivered_orders') }}" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Ver Pedidos Entregues</a>
             <a href="{{ route('dashboard.refunded_orders') }}" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">Ver Pedidos Reembolsados</a>
             <a href="{{ route('dashboard.orders') }}" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Ver Todos os Pedidos</a>
