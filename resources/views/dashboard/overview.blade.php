@@ -101,7 +101,7 @@
                                 {{ number_format((float) str_replace(',', '', data_get($order, 'local_currency_amount', 0)), 2, ',', '.') }}
                             </div>
                             <div class="mt-2 text-xs text-gray-500">
-                                {{ data_get($order, 'created_at') ? date('d/m/Y H:i', strtotime(data_get($order, 'created_at'))) : '—' }}
+                                {{ data_get($order, 'placed_at') ? date('d/m/Y H:i', strtotime(data_get($order, 'placed_at'))) : '—' }}
                             </div>
                         </div>
                     </div>
@@ -141,7 +141,7 @@
                                         {{ number_format((float) str_replace(',', '', data_get($order, 'local_currency_amount', 0)), 2, ',', '.') }}
                                     </td>
                                     <td class="p-3">
-                                        {{ data_get($order, 'created_at') ? date('d/m/Y H:i', strtotime(data_get($order, 'created_at'))) : '—' }}
+                                        {{ data_get($order, 'placed_at') ? date('d/m/Y H:i', strtotime(data_get($order, 'placed_at'))) : '—' }}
                                     </td>
                                 </tr>
                             @empty
