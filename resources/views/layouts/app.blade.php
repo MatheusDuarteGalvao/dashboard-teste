@@ -19,7 +19,7 @@
 
             <div class="flex items-center gap-4">
                 <a href="{{ route('dashboard.orders') }}" class="text-gray-600 hover:text-black">Pedidos</a>
-                <a href="{{ route('dashboard.top_products') }}" class="text-gray-600 hover:text-black">Top Produtos</a>
+                <a href="{{ route('dashboard.products') }}" class="text-gray-600 hover:text-black">Produtos</a>
             </div>
         </div>
     </nav>

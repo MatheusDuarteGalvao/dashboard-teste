@@ -83,7 +83,6 @@
             @endif
         </div>
 
-        {{-- Recent orders: mobile cards + desktop table (mesma estrutura do orders_table) --}}
         @php $ordersList = $orders ?? $recentOrders ?? [] @endphp
 
         <div class="sm:hidden space-y-3 mb-8">

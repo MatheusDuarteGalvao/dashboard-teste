@@ -98,7 +98,7 @@ class DashboardController extends Controller
             ['path' => $req->url(), 'query' => $req->query()]
         );
 
-        return view('dashboard.orders_table', [
+        return view('dashboard.orders', [
             'orders' => $paginator,
         ]);
     }
@@ -106,13 +106,13 @@ class DashboardController extends Controller
     /**
      * Web: top products (view)
      */
-    public function topProducts(Request $req)
+    public function products(Request $req)
     {
         $limit = (int) $req->get('limit', 5);
         $list = $this->orderItemRepo->getTopProducts($limit);
         $products = is_object($list) && method_exists($list, 'toArray') ? $list->toArray() : (array) $list;
 
-        return view('dashboard.top_products', ['products' => $products]);
+        return view('dashboard.products', ['products' => $products]);
     }
 
     /**
