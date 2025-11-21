@@ -62,9 +62,28 @@
             </div>
         </div>
 
-        <div class="bg-white p-5 shadow rounded mt-8 mb-8">
-            <h2 class="text-xl font-bold mb-4">Vendas ao longo do tempo</h2>
-            <canvas id="salesOvertime"></canvas>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <div class="bg-white p-5 shadow rounded">
+                <h2 class="text-xl font-bold mb-4">Vendas ao longo do tempo</h2>
+                <canvas id="salesOvertime"></canvas>
+            </div>
+
+            <div class="bg-white p-5 shadow rounded">
+                <h2 class="text-2xl font-bold mb-4">Distribuição Geográfica de Vendas</h2>
+                <canvas id="chartSalesGeografic"></canvas>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <div class="bg-white p-5 shadow rounded">
+                <h2 class="text-2xl font-bold mb-4">Top 5 Produtos</h2>
+                <canvas id="chartTopProducts"></canvas>
+            </div>
+
+            <div class="bg-white p-5 shadow rounded">
+                <h1 class="text-3xl font-bold mb-6">Top 10 Cidades</h1>
+                <canvas id="chartTopCities"></canvas>
+            </div>
         </div>
 
         <div class="bg-white shadow rounded-lg p-5 mb-8">
@@ -158,16 +177,6 @@
         </div>
     </div>
 
-    <div class="bg-white p-5 shadow rounded mt-8 mb-8">
-        <h2 class="text-2xl font-bold mb-4">Top 5 Produtos</h2>
-        <canvas id="chartTopProducts"></canvas>
-    </div>
-
-    <div class="bg-white p-5 shadow rounded mt-8 mb-8">
-        <h1 class="text-3xl font-bold mb-6">Top 10 Cidades</h1>
-        <canvas id="chartTopCities"></canvas>
-    </div>
-
     @push('scripts')
         <script>
             const ctxTopCities = document.getElementById('chartTopCities');
@@ -210,6 +219,23 @@
                     datasets: [{
                         label: 'Receita',
                         data: @json(collect($salesOvertime)->pluck('total')),
+                        borderWidth: 1
+                    }]
+                }
+            });
+
+            const ctxSalesGeografic = document.getElementById('chartSalesGeografic');
+
+            new Chart(ctxSalesGeografic, {
+                type: 'bar',
+                options: {
+                    indexAxis: 'y',
+                },
+                data: {
+                    labels: @json(collect($salesGeografic)->pluck('state')),
+                    datasets: [{
+                        label: 'Receita',
+                        data: @json(collect($salesGeografic)->pluck('total')),
                         borderWidth: 1
                     }]
                 }

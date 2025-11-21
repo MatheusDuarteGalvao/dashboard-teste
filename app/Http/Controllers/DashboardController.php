@@ -48,11 +48,14 @@ class DashboardController extends Controller
         $list = $this->orderItemRepo->getTopProducts(6);
         $topProducts = is_object($list) && method_exists($list, 'toArray') ? $list->toArray() : (array) $list;
 
-        $listCities = $this->customerRepo->getTopCities(5);
+        $listCities = $this->customerRepo->getTopCities(10);
         $topCities = is_object($listCities) && method_exists($listCities, 'toArray') ? $listCities->toArray() : (array) $listCities;
 
         $listSalesOvertime = $this->orderItemRepo->getSalesTrend(30);
         $salesOvertime = is_object($listSalesOvertime) && method_exists($listSalesOvertime, 'toArray') ? $listSalesOvertime->toArray() : (array) $listSalesOvertime;
+
+        $listSalesGeografic = $this->customerRepo->getSalesGeograficDistribution();
+        $salesGeografic = is_object($listSalesGeografic) && method_exists($listSalesGeografic, 'toArray') ? $listSalesGeografic->toArray() : (array) $listSalesGeografic;
 
         return view('dashboard.overview', [
             'data' => $data,
@@ -61,7 +64,7 @@ class DashboardController extends Controller
             'topProducts' => $topProducts,
             'topCities' => $topCities,
             'salesOvertime' => $salesOvertime,
-            'salesGeografic' => $this->customerRepo->getSalesGeograficDistribution(),
+            'salesGeografic' => $salesGeografic,
         ]);
     }
 
@@ -112,7 +115,8 @@ class DashboardController extends Controller
         $list = $this->orderItemRepo->getTopProducts($limit);
         $products = is_object($list) && method_exists($list, 'toArray') ? $list->toArray() : (array) $list;
 
-        return view('dashboard.products', ['products' => $products]);
+        return view('dashboard.products', [
+            'products' => $products,]);
     }
 
     /**
