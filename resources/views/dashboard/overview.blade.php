@@ -26,7 +26,7 @@
             @include('dashboard.components._card', [
                 'title' => 'Pedidos Entregues',
                 'value' => number_format($d['delivered_count'] ?? 0, 0, ',', '.'),
-                'meta' => $d['delivery_rate'] ?? 0 . '% entregues',
+                'meta' => ($d['delivery_rate'] ?? 0) . '% entregues',
             ])
             @include('dashboard.components._card', [
                 'title' => 'Clientes Únicos',
