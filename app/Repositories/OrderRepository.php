@@ -83,4 +83,13 @@ class OrderRepository
     {
         return Order::with('customer')->orderBy('placed_at', 'desc')->get();
     }
+
+    public function getRevenueByVariant()
+    {
+        return Order::selectRaw('SUM(local_currency_amount) as total_revenue, variant_id')
+            ->join('order_items', 'orders.id', '=', 'order_items.order_id')
+            ->groupBy('variant_id')
+            ->orderBy('total_revenue', 'desc')
+            ->get();
+    }
 }

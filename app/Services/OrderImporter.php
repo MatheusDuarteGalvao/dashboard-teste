@@ -105,6 +105,7 @@ class OrderImporter
     protected function resolveCustomer(array $orderData)
     {
         $cust = $orderData['customer'] ?? null;
+        $addr = $orderData['billing_address'] ?? null;
         if (is_array($cust) && !empty($cust['id'])) {
             return Customer::firstOrCreate(
                 ['external_id' => (string)$cust['id']],
@@ -112,8 +113,8 @@ class OrderImporter
                     'first_name' => $cust['first_name'] ?? $cust['name'] ?? null,
                     'last_name' => $cust['last_name'] ?? null,
                     'email' => $cust['email'] ?? $orderData['email'] ?? null,
-                    'city' => $cust['city'] ?? null,
-                    'state' => $cust['province'] ?? $cust['state'] ?? null,
+                    'city' => $addr['city'] ?? null,
+                    'state' => $addr['province'] ?? $addr['state'] ?? null,
                 ]
             );
         }

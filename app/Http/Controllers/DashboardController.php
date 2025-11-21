@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Repositories\CustomerRepository;
 use App\Repositories\OrderItemRepository;
 use App\Repositories\OrderRepository;
 use App\Repositories\RefundRepository;
@@ -13,13 +14,16 @@ class DashboardController extends Controller
 {
     protected $orderRepo;
 
+    protected $customerRepo;
+
     protected $orderItemRepo;
 
     protected $refundRepo;
 
-    public function __construct(OrderRepository $orderRepo, OrderItemRepository $orderItemRepo, RefundRepository $refundRepo)
+    public function __construct(OrderRepository $orderRepo, CustomerRepository $customerRepo, OrderItemRepository $orderItemRepo, RefundRepository $refundRepo)
     {
         $this->orderRepo = $orderRepo;
+        $this->customerRepo = $customerRepo;
         $this->orderItemRepo = $orderItemRepo;
         $this->refundRepo = $refundRepo;
     }
@@ -44,11 +48,16 @@ class DashboardController extends Controller
         $list = $this->orderItemRepo->getTopProducts(6);
         $topProducts = is_object($list) && method_exists($list, 'toArray') ? $list->toArray() : (array) $list;
 
+        $listCities = $this->customerRepo->getTopCities(5);
+        $topCities = is_object($listCities) && method_exists($listCities, 'toArray') ? $listCities->toArray() : (array) $listCities;
+
         return view('dashboard.overview', [
             'data' => $data,
             'orders' => $recent,
             'recentOrders' => $recent,
             'topProducts' => $topProducts,
+            'topCities' => $topCities,
+            'salesGeografic' => $this->customerRepo->getSalesGeograficDistribution(),
         ]);
     }
 

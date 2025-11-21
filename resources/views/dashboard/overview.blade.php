@@ -164,15 +164,41 @@
 
     @push('scripts')
     <script>
-        const ctxTop = document.getElementById('chartTopProducts');
+        const ctxTopProducts = document.getElementById('chartTopProducts');
 
-        new Chart(ctxTop, {
+        new Chart(ctxTopProducts, {
             type: 'bar',
             data: {
                 labels: @json(collect($topProducts)->pluck('name')),
                 datasets: [{
                     label: 'Vendas',
                     data: @json(collect($topProducts)->pluck('qty')),
+                    borderWidth: 1
+                }]
+            }
+        });
+    </script>
+    @endpush
+
+    @section('title', 'Top 10 Cidades')
+
+    <h1 class="text-3xl font-bold mb-6">Top 10 Cidades</h1>
+
+    <div class="bg-white p-6 shadow rounded">
+        <canvas id="chartTopCities"></canvas>
+    </div>
+
+    @push('scripts')
+    <script>
+        const ctxTopCities = document.getElementById('chartTopCities');
+
+        new Chart(ctxTopCities, {
+            type: 'bar',
+            data: {
+                labels: @json(collect($topCities)->pluck('city')),
+                datasets: [{
+                    label: 'Pedidos',
+                    data: @json(collect($topCities)->pluck('total')),
                     borderWidth: 1
                 }]
             }
