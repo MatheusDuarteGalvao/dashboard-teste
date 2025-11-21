@@ -81,6 +81,6 @@ class OrderRepository
 
     public function getOrders()
     {
-        return Order::with('customer')->orderBy('placed_at', 'desc')->paginate(20);
+        return Order::with('customer')->orderBy('placed_at', 'desc')->get();
     }
 }

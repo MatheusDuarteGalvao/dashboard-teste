@@ -6,6 +6,7 @@ use App\Repositories\OrderItemRepository;
 use App\Repositories\OrderRepository;
 use App\Repositories\RefundRepository;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Cache;
 
 class DashboardController extends Controller
@@ -72,8 +73,20 @@ class DashboardController extends Controller
             $ordersArr = [];
         }
 
+        $page = LengthAwarePaginator::resolveCurrentPage();
+        $perPage = 20;
+        $items = collect($ordersArr);
+
+        $paginator = new LengthAwarePaginator(
+            $items->slice(($page - 1) * $perPage, $perPage)->values(),
+            $items->count(),
+            $perPage,
+            $page,
+            ['path' => $req->url(), 'query' => $req->query()]
+        );
+
         return view('dashboard.orders_table', [
-            'orders' => $ordersArr,
+            'orders' => $paginator,
         ]);
     }
 

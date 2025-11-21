@@ -11,7 +11,10 @@
         <input id="q" type="search" placeholder="Buscar pedido, cliente, cidade..." class="px-3 py-2 rounded border w-full sm:w-1/3 focus:outline-none" />
     </div>
 
-    @php $ordersList = $orders['data'] ?? $orders ?? [] @endphp
+    @php
+        // Ajuste para funcionar com API ou paginator normal
+        $ordersList = $orders['data'] ?? $orders ?? [];
+    @endphp
 
     {{-- Mobile: lista de cards --}}
     <div class="sm:hidden space-y-3">
@@ -33,7 +36,9 @@
                         <div class="text-lg font-semibold text-gray-800">
                             R$ {{ number_format((float) str_replace(',', '', data_get($order, 'local_currency_amount', 0)), 2, ',', '.') }}
                         </div>
-                        <div class="mt-2 text-xs text-gray-500">{{ data_get($order, 'created_at') ? date('d/m/Y H:i', strtotime(data_get($order, 'created_at'))) : '—' }}</div>
+                        <div class="mt-2 text-xs text-gray-500">
+                            {{ data_get($order, 'created_at') ? date('d/m/Y H:i', strtotime(data_get($order, 'created_at'))) : '—' }}
+                        </div>
                     </div>
                 </div>
 
@@ -61,7 +66,6 @@
                     <th class="p-3">Entrega</th>
                     <th class="p-3">Valor</th>
                     <th class="p-3">Data</th>
-
                 </tr>
             </thead>
             <tbody>
@@ -72,8 +76,12 @@
                     <td class="p-3">{{ data_get($order, 'contact_email') ?? data_get($order, 'customer.email') }}</td>
                     <td class="p-3">{{ data_get($order, 'financial_status') }}</td>
                     <td class="p-3">{{ data_get($order, 'fulfillment_status') }}</td>
-                    <td class="p-3">R$ {{ number_format((float) str_replace(',', '', data_get($order, 'local_currency_amount', 0)), 2, ',', '.') }}</td>
-                    <td class="p-3">{{ data_get($order, 'created_at') ? date('d/m/Y H:i', strtotime(data_get($order, 'created_at'))) : '—' }}</td>
+                    <td class="p-3">
+                        R$ {{ number_format((float) str_replace(',', '', data_get($order, 'local_currency_amount', 0)), 2, ',', '.') }}
+                    </td>
+                    <td class="p-3">
+                        {{ data_get($order, 'created_at') ? date('d/m/Y H:i', strtotime(data_get($order, 'created_at'))) : '—' }}
+                    </td>
                 </tr>
                 @empty
                 <tr>
@@ -82,6 +90,10 @@
                 @endforelse
             </tbody>
         </table>
+    </div>
+
+    <div class="mt-6">
+        {{ $orders->links('pagination::tailwind') }}
     </div>
 </div>
 
@@ -92,13 +104,13 @@ document.addEventListener("DOMContentLoaded", () => {
     input.addEventListener("keyup", function () {
         const query = this.value.toLowerCase();
 
-        // --- Filtra TABELA (desktop) ---
+        // Filtra TABELA (desktop)
         document.querySelectorAll(".order-row").forEach((row) => {
             const text = row.innerText.toLowerCase();
             row.style.display = text.includes(query) ? "" : "none";
         });
 
-        // --- Filtra CARDS (mobile) ---
+        // Filtra CARDS (mobile)
         document.querySelectorAll(".order-card").forEach((card) => {
             const text = card.innerText.toLowerCase();
             card.style.display = text.includes(query) ? "" : "none";
