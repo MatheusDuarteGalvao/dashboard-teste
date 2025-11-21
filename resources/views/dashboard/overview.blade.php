@@ -6,10 +6,8 @@
     <div class="container mx-auto p-6">
         <h1 class="text-3xl font-bold mb-6">Overview</h1>
 
-        {{-- Cards (mantêm) --}}
         @php $d = $data ?? [] @endphp
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-            {{-- ...cards existing markup... --}}
             @include('dashboard.components._card', [
                 'title' => 'Total de pedidos',
                 'value' => number_format($d['total_orders'] ?? 0, 0, ',', '.'),
@@ -32,6 +30,29 @@
                 'title' => 'Clientes Únicos',
                 'value' => number_format($d['unique_customers'] ?? 0, 0, ',', '.'),
                 'meta' => 'Clientes distintos que fizeram pedidos',
+            ])
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+            @include('dashboard.components._card', [
+                'title' => 'Pedidos Reembolsados',
+                'value' => number_format($d['refunded_count'] ?? 0, 0, ',', '.'),
+                'meta' => ($d['refund_rate'] ?? 0) . '% reembolsados',
+            ])
+            @include('dashboard.components._card', [
+                'title' => 'Pedidos Entregues (%)',
+                'value' => ($d['delivery_rate'] ?? 0) . '%',
+                'meta' => 'Pedidos entregues / total',
+            ])
+            @include('dashboard.components._card', [
+                'title' => 'Valor Médio por Pedido',
+                'value' => 'R$ ' . number_format($d['average_order_value'] ?? 0, 2, ',', '.'),
+                'meta' => 'Valor médio dos pedidos',
+            ])
+            @include('dashboard.components._card', [
+                'title' => 'Produto Mais Vendido',
+                'value' => data_get($d, 'top_product.name') ?? '—',
+                'meta' => 'Mais vendido em quantidade',
             ])
         </div>
 
@@ -84,22 +105,6 @@
                 <h1 class="text-3xl font-bold mb-6">Top 10 Cidades</h1>
                 <canvas id="chartTopCities"></canvas>
             </div>
-        </div>
-
-        <div class="bg-white shadow rounded-lg p-5 mb-8">
-            <h3 class="text-lg font-medium">Produto Mais Vendido</h3>
-            @if (!empty($d['top_product']))
-                <div class="mt-3">
-                    <div class="font-medium">{{ data_get($d, 'top_product.name') ?? data_get($d, 'top_product.title') }}
-                    </div>
-                    <div class="text-sm text-gray-500">Qtd:
-                        {{ data_get($d, 'top_product.qty') ?? (data_get($d, 'top_product.quantity') ?? '—') }}</div>
-                    <div class="text-sm text-gray-500">Receita: R$
-                        {{ number_format(data_get($d, 'top_product.revenue') ?? 0, 2, ',', '.') }}</div>
-                </div>
-            @else
-                <div class="text-sm text-gray-500 mt-2">Sem dados</div>
-            @endif
         </div>
     </div>
 

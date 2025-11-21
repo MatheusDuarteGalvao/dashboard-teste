@@ -246,8 +246,16 @@ class DashboardController extends Controller
         $topItem = (is_object($top) && method_exists($top, 'first')) ? $top->first() : (is_array($top) && count($top) ? (object) $top[0] : null);
         $topProduct = $topItem ? (method_exists($topItem, 'toArray') ? $topItem->toArray() : (array) $topItem) : null;
 
+        $averageOrderValue = $this->orderRepo->getAverageOrderValue();
+
+        $refundedOrders = $this->refundRepo->countRefundedOrders();
+        $deliveredOrders = $this->orderRepo->countDelivered();
+
         return [
             'total_orders' => (int) $totalOrders,
+            'average_order_value' => (float) $averageOrderValue,
+            'refunded_count' => (int) $refundedOrders,
+            'delivered_count' => (int) $deliveredOrders,
             'total_revenue_brl' => (float) $totalRevenueBRL,
             'total_revenue_usd' => $totalRevenueUSD !== null ? (float) $totalRevenueUSD : null,
             'delivered_count' => (int) $delivered,
