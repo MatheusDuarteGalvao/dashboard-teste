@@ -251,10 +251,13 @@ class DashboardController extends Controller
         $refundedOrders = $this->refundRepo->countRefundedOrders();
         $deliveredOrders = $this->orderRepo->countDelivered();
 
+
+
         return [
             'total_orders' => (int) $totalOrders,
             'average_order_value' => (float) $averageOrderValue,
             'refunded_count' => (int) $refundedOrders,
+            'refund_delivered_rate' => $deliveredOrders ? round(($refundedOrders / $deliveredOrders) * 100, 2) : 0,
             'delivered_count' => (int) $deliveredOrders,
             'total_revenue_brl' => (float) $totalRevenueBRL,
             'total_revenue_usd' => $totalRevenueUSD !== null ? (float) $totalRevenueUSD : null,

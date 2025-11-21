@@ -40,9 +40,9 @@
                 'meta' => ($d['refund_rate'] ?? 0) . '% reembolsados',
             ])
             @include('dashboard.components._card', [
-                'title' => 'Pedidos Entregues (%)',
-                'value' => ($d['delivery_rate'] ?? 0) . '%',
-                'meta' => 'Pedidos entregues / total',
+                'title' => 'Pedidos Entregues vs Reembolsados (%)',
+                'value' => ($d['refund_delivered_rate'] ?? 0) . '%',
+                'meta' => 'Pedidos entregues contra pedidos reembolsados',
             ])
             @include('dashboard.components._card', [
                 'title' => 'Valor Médio por Pedido',
